@@ -1,10 +1,10 @@
-# 🛡️ Auditoría Híbrida de Modelos de Visión — Seguridad Ciudadana Canina (Tamaño + Bozal)
+# Auditoría Híbrida de Modelos de Visión — Seguridad Ciudadana Canina (Tamaño + Bozal)
 
 Proyecto final de **Visión Artificial** (Programa de Ingeniería de Sistemas y Computación) orientado al sector de **Seguridad Ciudadana**: detección de caninos en espacio público, estimación biométrica de tamaño y verificación de uso de **bozal**, enfrentando en paralelo **Procesamiento Clásico (OpenCV)** vs. **Aprendizaje Profundo (YOLOv8)** bajo condiciones estables y degradadas.
 
 ---
 
-## 🎯 Enfoque Sociorregional (Seguridad Ciudadana)
+## Enfoque Sociorregional (Seguridad Ciudadana)
 
 En parques, zonas residenciales y vías peatonales, el control de caninos de porte grande o manejo especial exige verificar el porte de **bozal**. El sistema aplica la misma regla operativa sobre ambos enfoques:
 
@@ -16,7 +16,7 @@ En parques, zonas residenciales y vías peatonales, el control de caninos de por
 
 ---
 
-## 📁 Estructura del Repositorio
+## Estructura del Repositorio
 
 ```text
 proyecto-VA/
@@ -39,7 +39,7 @@ proyecto-VA/
 
 ---
 
-## 📊 Dataset Unificado y Deduplicado (`dataset_seguridad_canina/`)
+## Dataset Unificado y Deduplicado (`dataset_seguridad_canina/`)
 
 El dataset final se construyó combinando y depurando dos fuentes públicas (CC BY 4.0) para eliminar duplicados `.rf.`, fuga de datos (*data leakage*) y desbalance de clases:
 1. **`dog.v1i.yolov8`** (Roboflow): 380 imágenes únicas de perros **sin bozal** en escenas cotidianas (`0: dog`).
@@ -49,7 +49,7 @@ El dataset final se construyó combinando y depurando dos fuentes públicas (CC 
 
 ---
 
-## 🧩 Módulos Implementados en `Proyecto.ipynb`
+## Módulos Implementados en `Proyecto.ipynb`
 
 1. **Módulo 1 — Procesamiento Clásico (20%):**
    * Segmentación HSV, filtro de mediana $5\times 5$, morfología (apertura + cierre), Área de Green y tamaño relativo unificado.
@@ -66,7 +66,7 @@ El dataset final se construyó combinando y depurando dos fuentes públicas (CC 
 
 ---
 
-## 🚀 Cómo Ejecutar
+## Cómo Ejecutar
 
 ### 1. Notebook en Google Colab (Recomendado para entrenar YOLOv8 en GPU)
 1. Sube `dataset_seguridad_canina/` a Google Drive (`/content/drive/MyDrive/dataset_seguridad_canina`).
