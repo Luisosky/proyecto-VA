@@ -66,4 +66,6 @@ tmp/
 # Descomenta la siguiente línea si prefieres que las 2,390+ imágenes no se suban a GitHub
 # (se recomienda descargar el dataset en Colab vía Roboflow o Drive para no saturar el repositorio)
 dog.v1i.yolov8/
+dog muzzle.v2i.yolov8/
+dataset_seguridad_canina/
 Proyecto Final Visión Artificial.pdf

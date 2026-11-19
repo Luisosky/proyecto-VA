@@ -1,14 +1,18 @@
-# 🐾 Auditoría Híbrida de Modelos de Visión ante Desafíos de Robustez en Entornos Dinámicos Reales
+# 🛡️ Auditoría Híbrida de Modelos de Visión — Seguridad Ciudadana Canina (Tamaño + Bozal)
 
-Proyecto final de **Visión Artificial** (Programa de Ingeniería de Sistemas y Computación) enfocado en la **detección regional y estimación biométrica de tamaño en caninos** en entornos urbanos, comparando en paralelo **Procesamiento Clásico (OpenCV)** vs. **Aprendizaje Profundo (YOLOv8)** bajo condiciones estables y degradadas.
+Proyecto final de **Visión Artificial** (Programa de Ingeniería de Sistemas y Computación) orientado al sector de **Seguridad Ciudadana**: detección de caninos en espacio público, estimación biométrica de tamaño y verificación de uso de **bozal**, enfrentando en paralelo **Procesamiento Clásico (OpenCV)** vs. **Aprendizaje Profundo (YOLOv8)** bajo condiciones estables y degradadas.
 
 ---
 
-## 🎯 Enfoque y Contexto Sociorregional
+## 🎯 Enfoque Sociorregional (Seguridad Ciudadana)
 
-**Aplicación práctica:** Sistema de monitoreo urbano para censo automatizado, bienestar animal y control vial mediante la detección de caninos en vía pública y la estimación de su porte (**Pequeño**, **Mediano**, **Grande**).
+En parques, zonas residenciales y vías peatonales, el control de caninos de porte grande o manejo especial exige verificar el porte de **bozal**. El sistema aplica la misma regla operativa sobre ambos enfoques:
 
-El núcleo del proyecto no se limita a lograr precisión en condiciones ideales, sino a **auditar, comparar y diagnosticar matemáticamente los límites operativos** de ambos enfoques frente a perturbaciones físicas reales (baja iluminación, deslumbramiento, ruido térmico/impulsivo y desenfoque) y proponer **filtros de rescate en preprocesamiento basados en la teoría del píxel**.
+| Tamaño Relativo del Canino | Uso de Bozal | Estado de Seguridad |
+| :--- | :---: | :--- |
+| **Grande** ($\ge 30\%$ del frame) | ❌ Sin bozal | 🔴 **ALERTA_SEGURIDAD** |
+| **Grande** ($\ge 30\%$ del frame) | ✅ Con bozal | 🟢 **CUMPLE_NORMATIVA** |
+| **Pequeño / Mediano** ($< 30\%$ del frame) | Cualquiera | ⚪ **RIESGO_BAJO** |
 
 ---
 
@@ -16,85 +20,67 @@ El núcleo del proyecto no se limita a lograr precisión en condiciones ideales,
 
 ```text
 proyecto-VA/
-├── Proyecto.ipynb                        # Notebook principal estructurado en los 4 módulos de la rúbrica
-├── Proyecto Final Visión Artificial.pdf  # Guía oficial, requerimientos y rúbrica de evaluación
-├── generar_visor.py                      # Script Python (OpenCV) para generar el visor web interactivo
-├── generar_visor.bat                     # Lanzador rápido en Windows (ejecuta/abre el visor HTML)
-├── visor_transformaciones.html           # Dashboard web autónomo con las transformaciones paso a paso
-├── .gitignore                            # Exclusión de pesos (*.pt), runs/, cachés y entornos virtuales
+├── Proyecto.ipynb                        # Notebook principal (4 módulos, ROC real, negativos reales)
+├── demo_en_vivo.py                       # Script en vivo (webcam/video/galería) con teclas de ataque y defensa
+├── generar_visor.py                      # Script Python (OpenCV/YOLOv8) que genera el visor HTML con datos reales
+├── generar_visor.bat                     # Lanzador rápido en Windows para abrir el visor HTML
+├── visor_transformaciones.html           # Dashboard autónomo de transformaciones paso a paso
+├── Proyecto Final Visión Artificial.pdf  # Guía oficial y rúbrica de evaluación
+├── .gitignore                            # Exclusión de pesos (*.pt), runs/, cachés y datasets crudos
 ├── README.md                             # Documentación del proyecto
-└── dog.v1i.yolov8/                       # Dataset en formato YOLOv8 (Roboflow, CC BY 4.0)
-    ├── data.yaml                         # Configuración de clases y rutas
-    ├── train/                            # 2,082 imágenes + etiquetas
-    ├── valid/                            # 209 imágenes + etiquetas
-    └── test/                             # 103 imágenes + etiquetas
+└── dataset_seguridad_canina/             # Dataset unificado, balanceado y deduplicado (773 imágenes únicas)
+    ├── data.yaml                         # 2 clases limpias: ['dog', 'muzzle']
+    ├── train/                            # 619 imágenes (304 sin bozal + 304 con bozal + 11 negativos)
+    ├── valid/                            # 77 imágenes  (38 sin bozal  + 38 con bozal  + 1 negativo)
+    └── test/                             # 77 imágenes  (38 sin bozal  + 38 con bozal  + 1 negativo)
 ```
+
+---
+
+## 📊 Dataset Unificado y Deduplicado (`dataset_seguridad_canina/`)
+
+El dataset final se construyó combinando y depurando dos fuentes públicas (CC BY 4.0) para eliminar duplicados `.rf.`, fuga de datos (*data leakage*) y desbalance de clases:
+1. **`dog.v1i.yolov8`** (Roboflow): 380 imágenes únicas de perros **sin bozal** en escenas cotidianas (`0: dog`).
+2. **`dog muzzle.v2i.yolov8`** (Roboflow): 380 imágenes únicas con bozal etiquetado (`0: dog`, `1: muzzle`) + 13 imágenes negativas vacías (descartando las 18 cajas ruidosas de `No_muzzle`).
+
+* **Total:** **773 imágenes únicas** (equilibrio exacto 50/50 entre perros sin bozal y con bozal en `train`, `valid` y `test`), listas para entrenar rápido en Google Colab con la aumentación dinámica nativa de YOLOv8.
 
 ---
 
 ## 🧩 Módulos Implementados en `Proyecto.ipynb`
 
-El notebook ([Proyecto.ipynb](Proyecto.ipynb)) está diseñado con detección automática de entorno (**Google Colab** o **ejecución local**) y cubre todos los criterios de la rúbrica:
-
-### 1. Módulo 1: Procesamiento Clásico (20%)
-* **Fundamentación matemática:** Espacio de color **HSV** (desacople entre matiz y luminancia), histogramas de canales $H$ y $S$, filtrado espacial no lineal (**Mediana**), morfología matemática (**Apertura** y **Cierre**) y descriptores geométricos (**Área de Green/Shoelace**, perímetro, circularidad y relación de aspecto).
-* **Estimación biométrica de tamaño:** Clasificación en *Pequeño*, *Mediano* y *Grande* a partir del área segmentada.
-* **Métricas obligatorias por frame:** Benchmark sobre `test/images` calculando media ($\mu$), desviación estándar ($\sigma$), percentil 95 ($P_{95}$), **FPS teóricos** y **Tasa de Falsos Positivos (FP/frame)** contrastada mediante $\text{IoU}$ contra el Ground Truth.
-
-### 2. Módulo 2: Aprendizaje Profundo (20%)
-* **Transfer Learning con YOLOv8 (`yolov8n.pt`):** Uso de arquitectura *CSPDarknet + C2f*, cuello *PANet* y cabeza *Anchor-Free* con parada temprana (`patience=15`).
-* **Curvas obligatorias:** Extracción automática desde `results.csv` para graficar **Box Loss**, **DFL Loss**, **Precision**, **Recall**, **mAP@50** y **mAP@50-95** (entrenamiento vs. validación) con diagnóstico de sobreajuste (*overfitting*).
-* **Inferencia en lote:** Medición de latencia por frame y clasificación de tamaño por área de Bounding Box ($w \times h$).
-
-### 3. Módulo 3: Análisis de Robustez y Rigor Métrico (20%)
-* **Banco de perturbaciones físicas:** Subexposición nocturna, sobreexposición solar, ruido Gaussiano térmico, ruido impulsivo Sal y Pimienta, desenfoque óptico y entorno crítico mixto.
-* **Métricas obligatorias:**
-  * **4 Matrices de Confusión Cruzadas** ($2 \times 2$): Clásico vs. YOLOv8 en entorno estable vs. crítico.
-  * **Curvas ROC y cálculo de AUC** por integración trapezoidal.
-  * **F1-Score bajo condiciones críticas** y tabla comparativa de tiempos por frame.
-
-### 4. Módulo 4: Defensa ante Ataque Adversario y Perturbaciones (40%)
-* **Diagnóstico matemático a nivel de píxel:** Explicación formal del colapso en visión clásica (caída de $V$ e indeterminación de $H$) y en redes convolucionales (atenuación de gradientes $\|\nabla I'\| = \alpha \|\nabla I\|$ por debajo del umbral de activación SiLU).
-* **Pipeline de rescate en preprocesamiento (`pipeline_defensa_preprocesamiento`):**
-  1. **Filtro Bilateral:** Supresión de ruido conservando los gradientes estructurales de bordes.
-  2. **Corrección Gamma ($\gamma = 0.65$):** Expansión no lineal de sombras oscuras mediante LUT.
-  3. **CLAHE en espacio CIE-Lab:** Ecualización adaptativa limitada al canal de luminancia ($L$) preservando los canales cromáticos ($a, b$).
-* **Validación en vivo:** Comparativa visual de 4 etapas (Limpio $\to$ Ataque/Fallo $\to$ Imagen Defendida $\to$ Inferencia Rescatada) y verificación mediante histogramas de intensidad $[0, 255]$.
+1. **Módulo 1 — Procesamiento Clásico (20%):**
+   * Segmentación HSV, filtro de mediana $5\times 5$, morfología (apertura + cierre), Área de Green y tamaño relativo unificado.
+   * **Detector clásico de bozal:** bordes **Canny** + **Transformada de Hough Probabilística** sobre la región cefálica para detectar la rejilla/correas de alta frecuencia.
+   * Storyboard paso a paso ($2\times 3$), benchmark real de latencia ($\mu \pm \sigma$, $P_{95}$, FPS), **FPR real** sobre negativos de fondo y Matriz de Confusión $3\times 3$ de tamaño.
+2. **Módulo 2 — Aprendizaje Profundo (20%):**
+   * Transfer Learning con **YOLOv8n** (`yolov8n.pt`) sobre 2 clases (`dog`, `muzzle`), parada temprana (`patience=15`), curvas reales desde `results.csv` (Box/Cls Loss, Precision, Recall, mAP@50, mAP@50-95) y asociación espacial perro $\leftrightarrow$ bozal por contención geométrica.
+3. **Módulo 3 — Análisis de Robustez y Rigor Métrico (20%):**
+   * Perturbaciones físicas de videovigilancia urbana (nocturna, deslumbramiento, ruido ISO alto, sal y pimienta, desenfoque óptico y entorno crítico mixto).
+   * **4 Matrices de Confusión cruzadas reales** y **Curvas ROC 100% reales** para ambos enfoques (sin valores sintéticos), usando positivos y negativos reales de fondo + tabla comparativa generada desde las mediciones.
+4. **Módulo 4 — Defensa ante Ataque Adversario (40%):**
+   * Diagnóstico matemático en la teoría del píxel (colapso de $V/H$, atenuación de gradientes $\|\nabla I'\| = \alpha \|\nabla I\|$ en SiLU y pérdida de altas frecuencias de la rejilla del bozal).
+   * Pipeline de rescate: **Filtro Bilateral** + **Corrección Gamma ($\gamma=0.65$)** + **CLAHE en CIE-Lab**, validado visual y cuantitativamente (F1 antes vs. después sobre el test degradado).
 
 ---
 
-## 📊 Dataset
+## 🚀 Cómo Ejecutar
 
-* **Fuente:** [Roboflow Universe — dog-moyp5 (v1)](https://universe.roboflow.com/vishnu-raj-ufx4d/dog-moyp5/dataset/1) (Licencia **CC BY 4.0**).
-* **Total:** 2,394 imágenes redimensionadas a `640x640` en formato YOLOv8:
-  * **Train:** 2,082 imágenes y etiquetas.
-  * **Valid:** 209 imágenes y etiquetas.
-  * **Test:** 103 imágenes y etiquetas.
-* **Clase anotada:** `0` (`dog` / `DOG - v2 2025-02-04 2-23pm`), utilizada para la detección regional y contrastada con los descriptores de tamaño geométrico.
+### 1. Notebook en Google Colab (Recomendado para entrenar YOLOv8 en GPU)
+1. Sube `dataset_seguridad_canina/` a Google Drive (`/content/drive/MyDrive/dataset_seguridad_canina`).
+2. Abre [`Proyecto.ipynb`](Proyecto.ipynb) en **Google Colab** con GPU T4 y ejecuta las celdas en orden.
 
----
+### 2. Demostración en Vivo para la Sustentación (`demo_en_vivo.py`)
+```bash
+pip install ultralytics opencv-python numpy
+python demo_en_vivo.py --fuente test        # Recorre el test set (teclas n/p)
+python demo_en_vivo.py --fuente 0           # Usa tu webcam en vivo
+```
+**Teclas en vivo:** `[1]` Limpio · `[2]` Baja luz · `[3]` Crítico (Luz+Ruido+Blur) · `[4]` Desenfoque · `[5]` Deslumbramiento · `[d]` Activar/Desactivar Defensa Matemática · `[m]` Clásico / YOLOv8 / Paralelo · `[q]` Salir.
 
-## 🚀 Cómo Usar el Proyecto
-
-### Opción A: Ejecutar el Notebook en Google Colab (Recomendado para entrenamiento GPU)
-1. Sube la carpeta `dog.v1i.yolov8/` a tu Google Drive (`/content/drive/MyDrive/dog.v1i.yolov8`).
-2. Abre `Proyecto.ipynb` en **Google Colab** con acelerador **GPU (T4)**.
-3. Ejecuta las celdas en orden secuencial. El notebook detecta automáticamente el entorno Colab y monta Drive.
-
-### Opción B: Ejecución Local (Python)
-1. Clona el repositorio e instala las dependencias necesarias:
-   ```bash
-   git clone https://github.com/Luisosky/proyecto-VA.git
-   cd proyecto-VA
-   pip install ultralytics opencv-python numpy matplotlib seaborn pandas
-   ```
-2. Abre `Proyecto.ipynb` en Jupyter / VS Code; las rutas se ajustarán automáticamente al directorio local `./dog.v1i.yolov8`.
-
-### Opción C: Visor Didáctico HTML de Transformaciones
-Para inspeccionar de manera visual e interactiva cada transformación sin abrir el notebook:
-* **En Windows (doble clic):** Ejecuta [`generar_visor.bat`](generar_visor.bat) para generar/abrir [`visor_transformaciones.html`](visor_transformaciones.html) en tu navegador.
-* **Desde terminal con otra imagen:**
+### 3. Visor Didáctico HTML
+* Doble clic en [`generar_visor.bat`](generar_visor.bat) o abre [`visor_transformaciones.html`](visor_transformaciones.html).
+* Para regenerarlo con OpenCV/YOLOv8 sobre otra imagen:
   ```bash
   python generar_visor.py "ruta/a/tu_imagen.jpg"
   ```
-* **Directamente:** Abre [`visor_transformaciones.html`](visor_transformaciones.html) en cualquier navegador (es 100% autónomo y funciona sin conexión).
