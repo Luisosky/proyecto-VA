@@ -26,6 +26,9 @@ proyecto-VA/
 ├── generar_visor.py                      # Script Python (OpenCV/YOLOv8) que genera el visor HTML con datos reales
 ├── generar_visor.bat                     # Lanzador rápido en Windows para abrir el visor HTML
 ├── visor_transformaciones.html           # Dashboard autónomo de transformaciones paso a paso
+├── generar_clasificador_html.py          # Generador del panel interactivo de clasificación (Tamaño + Bozal + Alerta)
+├── ver_clasificacion_perros.bat          # Lanzador rápido en Windows para abrir el panel de clasificación
+├── visor_clasificacion_perros.html       # Página interactiva con filtros, matrices de confusión y galería real
 ├── requirements.txt                      # Dependencias Python reproducibles (.venv)
 ├── Proyecto Final Visión Artificial.pdf  # Guía oficial y rúbrica de evaluación
 ├── .gitignore                            # Exclusión de pesos (*.pt), runs/, cachés y datasets crudos
