@@ -22,9 +22,11 @@ En parques, zonas residenciales y vías peatonales, el control de caninos de por
 proyecto-VA/
 ├── Proyecto.ipynb                        # Notebook principal (4 módulos, ROC real, negativos reales)
 ├── demo_en_vivo.py                       # Script en vivo (webcam/video/galería) con teclas de ataque y defensa
+├── iniciar_demo_en_vivo.bat              # Lanzador rápido en Windows para la demo en vivo
 ├── generar_visor.py                      # Script Python (OpenCV/YOLOv8) que genera el visor HTML con datos reales
 ├── generar_visor.bat                     # Lanzador rápido en Windows para abrir el visor HTML
 ├── visor_transformaciones.html           # Dashboard autónomo de transformaciones paso a paso
+├── requirements.txt                      # Dependencias Python reproducibles (.venv)
 ├── Proyecto Final Visión Artificial.pdf  # Guía oficial y rúbrica de evaluación
 ├── .gitignore                            # Exclusión de pesos (*.pt), runs/, cachés y datasets crudos
 ├── README.md                             # Documentación del proyecto

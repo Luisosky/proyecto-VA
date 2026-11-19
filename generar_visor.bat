@@ -1,35 +1,32 @@
 @echo off
 chcp 65001 > nul
-title Visor Didactico de Transformaciones - Vision Artificial
+title Visor Didactico de Transformaciones - Seguridad Canina
 
 echo ======================================================================
-echo    LABORATORIO DIDACTICO: TRANSFORMACIONES DE VISION ARTIFICIAL
+echo    LABORATORIO DIDACTICO: SEGURIDAD CANINA (TAMANO + BOZAL)
 echo    Auditoria Hibrida de Modelos ante Desafios de Robustez Reales
 echo ======================================================================
 echo.
 
-REM Intentar ejecutar con python o py si esta disponible
+if exist ".venv\Scripts\python.exe" (
+    echo [INFO] Ejecutando generador con el entorno virtual .venv...
+    ".venv\Scripts\python.exe" generar_visor.py %1
+    goto ABRIR_HTML
+)
+
 where python >nul 2>nul
 if %errorlevel% equ 0 (
-    echo [INFO] Ejecutando generador con python...
-    python generar_visor.py
+    echo [INFO] Ejecutando generador con python del sistema...
+    python generar_visor.py %1
     goto ABRIR_HTML
 )
 
-where py >nul 2>nul
-if %errorlevel% equ 0 (
-    echo [INFO] Ejecutando generador con lanzador py...
-    py generar_visor.py
-    goto ABRIR_HTML
-)
-
-echo [AVISO] Python no se detecto en el PATH del sistema o requiere configuracion.
-echo Utilizando el visor HTML pregenerado directamente...
+echo [AVISO] Python no detectado. Abriendo visor HTML existente...
 echo.
 
 :ABRIR_HTML
 if exist "visor_transformaciones.html" (
-    echo [EXITO] Abriendo visor_transformaciones.html en tu navegador predeterminado...
+    echo [EXITO] Abriendo visor_transformaciones.html en tu navegador...
     start "" "visor_transformaciones.html"
 ) else (
     echo [ERROR] No se encontro el archivo visor_transformaciones.html.
@@ -37,9 +34,5 @@ if exist "visor_transformaciones.html" (
     exit /b 1
 )
 
-echo.
-echo ======================================================================
-echo   Visor abierto con exito. Puedes cerrar esta ventana.
-echo ======================================================================
-timeout /t 3 > nul
+timeout /t 2 > nul
 exit /b 0

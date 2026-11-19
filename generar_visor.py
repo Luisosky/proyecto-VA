@@ -63,12 +63,12 @@ def analizar_bozal_clasico(img_bgr, box):
         return False, 0.0, np.zeros((16, 16), dtype=np.uint8), 0
     gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
     gray_eq = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(4, 4)).apply(gray)
-    edges = cv2.Canny(gray_eq, 70, 170)
+    edges = cv2.Canny(gray_eq, 80, 190)
     dens = float(np.count_nonzero(edges)) / float(edges.size)
-    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 25, minLineLength=max(10, int(min(roi.shape[:2]) * 0.1)), maxLineGap=6)
+    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 30, minLineLength=max(12, int(min(roi.shape[:2]) * 0.12)), maxLineGap=5)
     n_lin = len(lines) if lines is not None else 0
-    score = min(1.0, 0.55 * min(1.0, dens / 0.22) + 0.45 * min(1.0, n_lin / 25.0))
-    return (score >= 0.24), score, edges, n_lin
+    score = min(1.0, 0.50 * min(1.0, dens / 0.25) + 0.50 * min(1.0, n_lin / 30.0))
+    return (score >= 0.70), score, edges, n_lin
 
 
 def detectar_clasico(img_bgr):
