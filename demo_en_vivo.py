@@ -198,36 +198,45 @@ def main():
         return
 
     print("Controles: [1-5] Ataques | [d] Defensa ON/OFF | [m] Vista | [n/p] Imagen | [q] Salir")
+    win_name = "Demo En Vivo - Auditoria Hibrida Seguridad Canina"
+    last_state = None
+    canvas = None
+
     while True:
-        if use_gallery:
-            frame = cv2.imread(gallery[idx_img])
-        else:
-            ok, frame = cap.read()
-            if not ok:
-                break
-        frame = cv2.resize(frame, (540, 540))
-        frame_proc, nombre_ataque = aplicar_ataque(frame, modo_ataque)
-        if defensa_activa:
-            frame_proc = aplicar_defensa(frame_proc)
+        cur_state = (idx_img, modo_ataque, defensa_activa, vista)
+        if not use_gallery or cur_state != last_state:
+            if use_gallery:
+                frame = cv2.imread(gallery[idx_img])
+            else:
+                ok, frame = cap.read()
+                if not ok:
+                    break
+            frame = cv2.resize(frame, (540, 540))
+            frame_proc, nombre_ataque = aplicar_ataque(frame, modo_ataque)
+            if defensa_activa:
+                frame_proc = aplicar_defensa(frame_proc)
 
-        if vista == 0:
-            v1 = correr_clasico(frame_proc)
-            v2 = correr_yolo(frame_proc, model, entrenado)
-            canvas = np.hstack((v1, v2))
-        elif vista == 1:
-            canvas = correr_clasico(frame_proc)
-        else:
-            canvas = correr_yolo(frame_proc, model, entrenado)
+            if vista == 0:
+                v1 = correr_clasico(frame_proc)
+                v2 = correr_yolo(frame_proc, model, entrenado)
+                canvas = np.hstack((v1, v2))
+            elif vista == 1:
+                canvas = correr_clasico(frame_proc)
+            else:
+                canvas = correr_yolo(frame_proc, model, entrenado)
 
-        # Barra superior de estado físico del píxel (luminancia media V)
-        v_mean = float(np.mean(cv2.cvtColor(frame_proc, cv2.COLOR_BGR2HSV)[:, :, 2]))
-        banner = f"{nombre_ataque} | DEFENSA: {'ON (Bilateral+Gamma+CLAHE)' if defensa_activa else 'OFF'} | Brillo V_medio={v_mean:.1f}"
-        cv2.rectangle(canvas, (0, 0), (canvas.shape[1], 32), (20, 20, 20), -1)
-        col_txt = (0, 255, 0) if defensa_activa else ((0, 200, 255) if modo_ataque == 1 else (0, 80, 255))
-        cv2.putText(canvas, banner, (10, 22), cv2.FONT_HERSHEY_SIMPLEX, 0.52, col_txt, 1, cv2.LINE_AA)
+            # Barra superior de estado físico del píxel (luminancia media V)
+            v_mean = float(np.mean(cv2.cvtColor(frame_proc, cv2.COLOR_BGR2HSV)[:, :, 2]))
+            banner = f"{nombre_ataque} | DEFENSA: {'ON (Bilateral+Gamma+CLAHE)' if defensa_activa else 'OFF'} | Brillo V_medio={v_mean:.1f}"
+            cv2.rectangle(canvas, (0, 0), (canvas.shape[1], 32), (20, 20, 20), -1)
+            col_txt = (0, 255, 0) if defensa_activa else ((0, 200, 255) if modo_ataque == 1 else (0, 80, 255))
+            cv2.putText(canvas, banner, (10, 22), cv2.FONT_HERSHEY_SIMPLEX, 0.52, col_txt, 1, cv2.LINE_AA)
+            cv2.imshow(win_name, canvas)
+            last_state = cur_state
 
-        cv2.imshow("Demo En Vivo - Auditoria Hibrida Seguridad Canina", canvas)
-        key = cv2.waitKey(30 if not use_gallery else 0) & 0xFF
+        key = cv2.waitKey(30 if not use_gallery else 60) & 0xFF
+        if cv2.getWindowProperty(win_name, cv2.WND_PROP_VISIBLE) < 1:
+            break
         if key == ord("q") or key == 27:
             break
         elif key in [ord("1"), ord("2"), ord("3"), ord("4"), ord("5")]:
